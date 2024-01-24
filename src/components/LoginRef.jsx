@@ -1,42 +1,27 @@
-//! not recommended to create form using useRef
 import { useRef, useState } from 'react';
-import { hasMinLength, isEmail, isNotEmpty } from '../util/validation';
 
 export default function LoginRef() {
-  const [emailIsValid, setEmailIsValid] = useState(true);
-  const [passwordIsValid, setPasswordIsValid] = useState(true);
+  const [emailIsInvalid, setEmailIsInvalid] = useState(false);
 
-  const emailRef = useRef();
-  const passwordRef = useRef();
+  const email = useRef();
+  const password = useRef();
 
   function handleSubmit(event) {
     event.preventDefault();
-    const email = emailRef.current.value;
-    const password = passwordRef.current.value;
 
-    isNotEmpty(email) && isEmail(email)
-      ? setEmailIsValid(true)
-      : setEmailIsValid(false);
+    const enteredEmail = email.current.value;
+    const enteredPassword = password.current.value;
 
-    isNotEmpty(password) && hasMinLength(password, 6)
-      ? setPasswordIsValid(true)
-      : setPasswordIsValid(false);
+    const emailIsValid = enteredEmail.includes('@');
 
-    if (emailIsValid && passwordIsValid) {
-      console.log('email : ', email);
-      console.log('password : ', password);
-      console.log('Send to HTTP Request!');
-
-      // reset value
-      setTimeout(() => {
-        reset();
-      }, 1000);
+    if (!emailIsValid) {
+      setEmailIsInvalid(true);
+      return;
     }
-  }
 
-  function reset() {
-    emailRef.current.value = '';
-    passwordRef.current.value = '';
+    setEmailIsInvalid(false);
+
+    console.log('Sending HTTP request...');
   }
 
   return (
@@ -46,33 +31,21 @@ export default function LoginRef() {
       <div className='control-row'>
         <div className='control no-margin'>
           <label htmlFor='email'>Email</label>
-          <input id='email' type='email' name='email' ref={emailRef} />
-          {!emailIsValid && (
-            <div className='control-error'>Email is invalid!</div>
-          )}
+          <input id='email' type='email' name='email' ref={email} />
+          <div className='control-error'>
+            {emailIsInvalid && <p>Please enter a valid email address.</p>}
+          </div>
         </div>
 
         <div className='control no-margin'>
           <label htmlFor='password'>Password</label>
-          <input
-            id='password'
-            type='password'
-            name='password'
-            ref={passwordRef}
-          />
-          {!passwordIsValid && (
-            <div className='control-error'>Password must be 6 char!</div>
-          )}
+          <input id='password' type='password' name='password' ref={password} />
         </div>
       </div>
 
       <p className='form-actions'>
-        <button type='reset' className='button button-flat'>
-          Reset
-        </button>
-        <button type='submit' className='button'>
-          Login
-        </button>
+        <button className='button button-flat'>Reset</button>
+        <button className='button'>Login</button>
       </p>
     </form>
   );
